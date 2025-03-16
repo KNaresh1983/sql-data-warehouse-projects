@@ -1,0 +1,159 @@
+/*
+=======================================================================================================
+DDL Script = Create Bronze Table
+=======================================================================================================
+Script Purpose:
+    This script creates table in the 'bronze' schema,droping exsiting tables
+    if the already exisit.
+    Run the script to re-define the DDL Structue of 'Bronze' Tables
+=======================================================================================================
+*/
+If object_id ("bronze.crm_cust_info", "u") is not null
+     drop table bronze.crm_cust_info;
+create table bronze.crm_cust_info(
+	cst_id int,
+	cst_key nvarchar(50),
+	cst_firstname nvarchar(50),
+	cst_lastname nvarchar(50),
+	cst_materail_status nvarchar(50),
+	cst_gndr nvarchar(50),
+	cst_create_data date
+	);
+    
+If object_id ("bronze.crm_prd_info","u") IS not null
+    drop table bronze.crm_prd_info;
+create table bronze.crm_prd_info(
+	prd_id int,
+	prd_key nvarchar(50),
+	prd_nm nvarchar(50),
+	prd_cost int,
+	prd_line varchar(50),
+	prd_start_dt  Date,
+	prd_end_dt  Date
+);
+
+If object_id("bronze.crm_sales_details","u")IS not null
+    drop table bronze.crm_sales_details;
+create table bronze.crm_sales_details(
+	sls_ord_num nvarchar(50),
+	sls_prd_key nvarchar(50),
+	sls_cust_id int,
+	sls_order_dt int,
+	sls_ship_dt int,
+	sls_due_dt int,
+	sls_sales int,
+	sls_quantity int,
+	sls_price int
+);
+
+If object_id("bronze.erp_loc_a101","u") IS not null
+    drop table bronze.erp_loc_a101;
+create table bronze.erp_loc_a101(
+	cid nvarchar(50),
+	cntry nvarchar(50)
+);
+
+If object_id("bronze.erp_cust_az12","u") IS not null
+    drop table bronze.erp_cust_az12;
+create table bronze.erp_cust_az12(
+	cid nvarchar(50),
+	bdate date,
+	gen nvarchar(50)
+);
+
+If object_id("bronze.erp_px_cat_g1v2","u") IS not null
+   drop table bronze.erp_px_cat_g1v2;
+create table bronze.erp_px_cat_g1v2(
+	id nvarchar(50),
+	cat nvarchar(50),
+	subcat nvarchar(50),
+	maintenance nvarchar(50)
+);
+
+select count(*)
+from bronze.erp_px_cat_g1v2
+
+
+exec bronze.load_bronze 
+Create or Alter Procedure bronze.load_bronze as 
+Begin
+
+	print"=======================================================";
+	print"loading bronze layer";
+	print"=======================================================";
+
+	print"------------------------------------------------------";
+	print"loading crm tables";
+	print"------------------------------------------------------";
+
+	print">>truncating taBLE:bronze.crm_cust_inf";
+	truncate table bronze.crm_cust_info;
+	print"inserting data into:bronze.crm_cust_info";
+	BULK INSERT bronze.crm_cust_info
+	FROM 'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_crm\cust_info.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ',',
+		TABLOCK
+	);
+
+	print">>truncating taBLE:bronze.crm_prd_info";
+	truncate table bronze.crm_prd_info;
+	print"inserting data into:bronze.crm_prd_info";
+	BULK INSERT bronze.crm_prd_info
+	FROM 'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_crm\prd_info.csv'
+	WITH (
+		 FIRSTROW =2,
+		 FIELDTERMINATOR =',',
+		 TABLOCK
+	);
+	print">>truncating taBLE:bronze.crm_sales_details";
+	truncate table bronze.crm_sales_details
+	print"inserting data into:bronze.crm_sales_details";
+	BULK INSERT bronze.crm_sales_details
+	From 'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_crm\sales_details.csv'
+	WITH (
+		 FIRSTROW=2,
+		 FIELDTERMINATOR =',',
+		 TABLOCK
+	);
+
+		print"------------------------------------------------------";
+		print"loading erp tables";
+		print"------------------------------------------------------";
+
+
+	print">>truncating taBLE:bronze.erp_cust_az12";
+	truncate table bronze.erp_cust_az12
+	print"inserting data into:bronze.erp_cust_az12";
+	BULK INSERT  bronze.erp_cust_az12
+	FROM  'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_erp\cust_az12.csv'
+	WITH(
+		 FIRSTROW =2,
+		 FIELDTERMINATOR = ',',
+		 TABLOCK
+	);
+	print">>truncating taBLE: bronze.erp_loc_a101";
+	truncate table bronze.erp_loc_a101
+	print"inserting data into: bronze.erp_loc_a101";
+	BULK INSERT bronze.erp_loc_a101
+	FROM 'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_erp\loc_a101.csv'
+	WITH(
+		 FIRSTROW =2,
+		 FIELDTERMINATOR = ',',
+		 TABLOCK
+	);
+	print">>truncating taBLE:bronze.erp_px_cat_g1v2";
+	truncate table bronze.erp_px_cat_g1v2
+	print"inserting data into:bronze.erp_px_cat_g1v2";
+	BULK INSERT bronze.erp_px_cat_g1v2
+	FROM 'C:\Users\nanin\OneDrive\Documents\SQL- projectsdata\source_erp\px_cat_g1v2.csv'
+	WITH(
+		FIRSTROW =2,
+		FIELDTERMINATOR =',',
+		TABLOCK
+	);
+End
+
+
+
